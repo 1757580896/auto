@@ -10,14 +10,16 @@ jobs:
   mirror:
     runs-on: ubuntu-latest
     steps:
-      # 1. 配置SSH密钥
-      - uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: |
-            ${{ secrets.SSH_PRIVATE_KEY }}
-            ${{ secrets.GITEE_SSH_PRIVATE_KEY }}
+      # 1. 配置SSH环境
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          ssh-keyscan gitee.com >> ~/.ssh/known_hosts
 
-      # 2. 验证SSH连接（调试用）
+      # 2. 验证SSH连接
       - name: Test SSH Connections
         run: |
           ssh -T git@github.com || true
@@ -30,10 +32,16 @@ jobs:
           cd github-repo
           git lfs pull
 
-      # 4. 同步到Gitee
+      # 4. 配置Git身份
+      - name: Setup Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      # 5. 推送到Gitee
       - name: Push to Gitee
         run: |
           cd github-repo
-          git remote add gitee git@gitee.com:sunjianw022/iptv-api5.git
+          git remote add gitee git@gitee.com:sunjianw022/iptv-api5.git || true
           git push gitee main --force
-          git push gitee --tags
+          git push gitee --tags --force
