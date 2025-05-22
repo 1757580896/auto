@@ -1,24 +1,34 @@
 on:
   push:
-    # delete this item if you don't want to trigger this workflow when modify this repo
     branches: main
   schedule:
-    # * is a special character in YAML so you have to quote this string
-    # UTC 17:00 -> CST (China) 1:00, see https://datetime360.com/cn/utc-cst-china-time/
     - cron: '0 17 * * *'
-  workflow_dispatch:  # 允许手动触发
-name: Mirror GitHub Auto Queried Repos to Gitee
+  workflow_dispatch:
+name: Mirror GitHub Private Repo to Gitee
 jobs:
   run:
     name: Sync-GitHub-to-Gitee
     runs-on: ubuntu-latest
     steps:
-    - name: Mirror the Github repos to Gitee.
-      uses: Yikun/hub-mirror-action@master
-      with:
-        src: github/1757580896
-        dst: gitee/sunjianw022
-        dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
-        dst_token: ${{ secrets.GITEE_TOKEN }}
-        static_list: "iptv-api5"
-        force_update: true
+      # 1. 配置 GitHub SSH 访问（用于克隆私有仓库）
+      - name: Setup GitHub SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "${{ secrets.GITHUB_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      # 2. 使用 hub-mirror-action，指定 src 为 SSH 格式
+      - name: Mirror GitHub to Gitee
+        uses: Yikun/hub-mirror-action@master
+        with:
+          # 使用 SSH 格式访问 GitHub 私有仓库
+          src: git@github.com:1757580896/iptv-api5.git
+          # Gitee 目标（可以用 HTTPS 或 SSH）
+          dst: gitee/sunjianw022
+          dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}  # Gitee 的 SSH 私钥（如果用 SSH）
+          dst_token: ${{ secrets.GITEE_TOKEN }}      # Gitee 的 Token（如果用 HTTPS）
+          static_list: "iptv-api5"  # 只同步这个仓库
+          force_update: true
+          # 启用 SSH 模式（确保 GitHub 使用 SSH 克隆）
+          ssh: true
