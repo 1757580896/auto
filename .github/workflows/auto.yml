@@ -15,7 +15,7 @@ jobs:
       - name: Setup GitHub SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.GH_SSH_PRIVATE_KEY }}  # GitHub的SSH私钥
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # GitHub的SSH私钥
 
       # 2. 检查SSH连接（可选，调试用）
       - name: Test SSH Connection to GitHub
