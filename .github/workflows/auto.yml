@@ -1,26 +1,33 @@
-name: Mirror GitHub Private Repo to Gitee (SSH)
+name: Mirror GitHub Private Repo to Gitee
 on:
   push:
     branches: [main]
   schedule:
-    - cron: '0 17 * * *'  # UTC 17:00 (CST 1:00)
-  workflow_dispatch:       # 允许手动触发
+    - cron: '0 17 * * *'
+  workflow_dispatch:
 
 jobs:
   mirror:
-    name: Sync-GitHub-to-Gitee-via-SSH
     runs-on: ubuntu-latest
     steps:
-    - uses: webfactory/ssh-agent@v0.9.0
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # GitHub 私钥
+      # 1. 使用 checkout 克隆私有仓库（SSH方式）
+      - uses: actions/checkout@v4
+        with:
+          repository: 1757580896/iptv-api5
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          path: ./source-repo
 
-    - name: Mirror to Gitee
-      uses: Yikun/hub-mirror-action@master
-      with:
-        src: git@github.com:1757580896/iptv-api5.git  # 直接使用 SSH URL
-        dst: gitee/sunjianw022
-        static_list: "iptv-api5"
-        force_update: true
-        dst_key: ${{ secrets.GITEE_SSH_PRIVATE_KEY }}  # Gitee SSH 私钥
-       
+      # 2. 设置Git全局配置
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      # 3. 同步到Gitee
+      - name: Mirror to Gitee
+        uses: Yikun/hub-mirror-action@master
+        with:
+          src: ./source-repo  # 使用本地路径
+          dst: gitee/sunjianw022
+          force_update: true
+          dst_key: ${{ secrets.GITEE_SSH_PRIVATE_KEY }}
