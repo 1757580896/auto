@@ -23,7 +23,7 @@ jobs:
         uses: Yikun/hub-mirror-action@master
         with:
           # 使用 SSH 格式访问 GitHub 私有仓库
-          src: git@github.com:1757580896/iptv-api5.git
+          src: github/1757580896
           # Gitee 目标（可以用 HTTPS 或 SSH）
           dst: gitee/sunjianw022
           dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}  # Gitee 的 SSH 私钥（如果用 SSH）
