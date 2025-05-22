@@ -14,7 +14,7 @@ jobs:
       - uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: |
-            ${{ secrets.GH_SSH_PRIVATE_KEY }}
+            ${{ secrets.SSH_PRIVATE_KEY }}
             ${{ secrets.GITEE_SSH_PRIVATE_KEY }}
 
       # 2. 验证SSH连接（调试用）
