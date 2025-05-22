@@ -29,6 +29,6 @@ jobs:
           dst: gitee/sunjianw022            # Gitee目标路径
           static_list: "iptv-api5"          # 指定私有仓库
           force_update: true                # 强制覆盖
-          # dst_key: ${{ secrets.GITEE_SSH_PRIVATE_KEY }}  # Gitee的SSH私钥
+          dst_key: ${{ secrets.GITEE_SSH_PRIVATE_KEY }}  # Gitee的SSH私钥
           # 如果Gitee用HTTPS，改用dst_token:
           dst_token: ${{ secrets.GITEE_TOKEN }}
