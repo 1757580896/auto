@@ -20,5 +20,5 @@ jobs:
         dst: gitee/sunjianw022
         dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
         dst_token: ${{ secrets.GITEE_TOKEN }}
-        static_list: "iptv-api3"
+        static_list: "iptv-api5"
         force_update: true
