@@ -1,34 +1,34 @@
+name: Mirror GitHub Private Repo to Gitee (SSH)
 on:
   push:
-    branches: main
+    branches: [main]
   schedule:
-    - cron: '0 17 * * *'
-  workflow_dispatch:
-name: Mirror GitHub Private Repo to Gitee
+    - cron: '0 17 * * *'  # UTC 17:00 (CST 1:00)
+  workflow_dispatch:       # 允许手动触发
+
 jobs:
-  run:
-    name: Sync-GitHub-to-Gitee
+  mirror:
+    name: Sync-GitHub-to-Gitee-via-SSH
     runs-on: ubuntu-latest
     steps:
-      # 1. 配置 GitHub SSH 访问（用于克隆私有仓库）
+      # 1. 配置GitHub SSH密钥（用于克隆私有仓库）
       - name: Setup GitHub SSH
-        run: |
-          mkdir -p ~/.ssh/
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.GH_SSH_PRIVATE_KEY }}  # GitHub的SSH私钥
 
-      # 2. 使用 hub-mirror-action，指定 src 为 SSH 格式
-      - name: Mirror GitHub to Gitee
+      # 2. 检查SSH连接（可选，调试用）
+      - name: Test SSH Connection to GitHub
+        run: ssh -T git@github.com || true  # 忽略错误，仅测试连通性
+
+      # 3. 使用hub-mirror-action同步
+      - name: Mirror to Gitee
         uses: Yikun/hub-mirror-action@master
         with:
-          # 使用 SSH 格式访问 GitHub 私有仓库
-          src: github/1757580896
-          # Gitee 目标（可以用 HTTPS 或 SSH）
-          dst: gitee/sunjianw022
-          dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}  # Gitee 的 SSH 私钥（如果用 SSH）
-          dst_token: ${{ secrets.GITEE_TOKEN }}      # Gitee 的 Token（如果用 HTTPS）
-          static_list: "iptv-api5"  # 只同步这个仓库
-          force_update: true
-          # 启用 SSH 模式（确保 GitHub 使用 SSH 克隆）
-          ssh: true
+          src: github/1757580896            # GitHub用户名
+          dst: gitee/sunjianw022            # Gitee目标路径
+          static_list: "iptv-api5"          # 指定私有仓库
+          force_update: true                # 强制覆盖
+          # dst_key: ${{ secrets.GITEE_SSH_PRIVATE_KEY }}  # Gitee的SSH私钥
+          # 如果Gitee用HTTPS，改用dst_token:
+          dst_token: ${{ secrets.GITEE_TOKEN }}
