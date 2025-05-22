@@ -11,24 +11,16 @@ jobs:
     name: Sync-GitHub-to-Gitee-via-SSH
     runs-on: ubuntu-latest
     steps:
-      # 1. 配置GitHub SSH密钥（用于克隆私有仓库）
-      - name: Setup GitHub SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # GitHub的SSH私钥
+    - uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # GitHub 私钥
 
-      # 2. 检查SSH连接（可选，调试用）
-      - name: Test SSH Connection to GitHub
-        run: ssh -T git@github.com || true  # 忽略错误，仅测试连通性
-
-      # 3. 使用hub-mirror-action同步
-      - name: Mirror to Gitee
-        uses: Yikun/hub-mirror-action@master
-        with:
-          src: github/1757580896            # GitHub用户名
-          dst: gitee/sunjianw022            # Gitee目标路径
-          static_list: "iptv-api5"          # 指定私有仓库
-          force_update: true                # 强制覆盖
-          dst_key: ${{ secrets.GITEE_SSH_PRIVATE_KEY }}  # Gitee的SSH私钥
-          # 如果Gitee用HTTPS，改用dst_token:
-          dst_token: ${{ secrets.GITEE_TOKEN }}
+    - name: Mirror to Gitee
+      uses: Yikun/hub-mirror-action@master
+      with:
+        src: git@github.com:1757580896/iptv-api5.git  # 直接使用 SSH URL
+        dst: gitee/sunjianw022
+        static_list: "iptv-api5"
+        force_update: true
+        dst_key: ${{ secrets.GITEE_SSH_PRIVATE_KEY }}  # Gitee SSH 私钥
+       
